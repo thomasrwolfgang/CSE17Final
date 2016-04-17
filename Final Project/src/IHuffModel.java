@@ -58,4 +58,4 @@ public interface IHuffModel extends IHuffConstants {
      */
     public void uncompress(InputStream in, OutputStream out);
 
-}s
+}
