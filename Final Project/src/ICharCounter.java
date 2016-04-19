@@ -25,7 +25,7 @@ public interface ICharCounter {
      * @return count of all chunks/read
      * @throws IOException if reading fails
      */
-    public int countAll(InputStream stream) throws IOException;
+    public int countAll(BitInputStream stream) throws IOException;
 
     /**
      * Update state to record one occurrence of specified chunk/character.

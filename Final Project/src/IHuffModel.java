@@ -49,7 +49,7 @@ public interface IHuffModel extends IHuffConstants {
      * Make sure this model communicates with some view.
      * @param viewer is the view for communicating.
      */
-    public void setViewer(HuffViewer viewer);
+   // public void setViewer(HuffViewer viewer);
 
     /**
      * Uncompress a previously compressed file.

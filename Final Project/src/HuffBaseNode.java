@@ -4,5 +4,5 @@ public interface HuffBaseNode
     public boolean isLeaf();
 
 
-    public sint weight();
+    public int weight();
 }

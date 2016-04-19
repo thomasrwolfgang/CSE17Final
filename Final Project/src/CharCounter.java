@@ -1,11 +1,9 @@
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 
 // -------------------------------------------------------------------------
 /**
- * Holds an ArrayList whose index's are ascii values and the values represent
- * the counts of that ascii values occurence
+ * Holds an ArrayList whose index's are ASCII values and the values represent
+ * the counts of that ASCII values occurrence
  *
  * @author Thomas Wolfgang trw218
  * @version 2016.04.14
@@ -16,7 +14,11 @@ public class CharCounter
     /**
      * Table to hold the counts for each value read by a stream
      */
-    ArrayList<Integer> table = new ArrayList<Integer>(256);
+    int[] table = new int[256];
+    /**
+     * Number of bits per word
+     */
+    final int BITS_PER_WORD = 8;
 
 
     // ----------------------------------------------------------
@@ -25,25 +27,25 @@ public class CharCounter
      */
     public CharCounter()
     {
-        for (int i = 0; i <= 256; i++)
+        for (int i = 0; i <= 255; i++)
         {
-            table.set(i, 0);
+            table[i] = 0;
         }
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Returns the count associated with a specific character's ascii value
+     * Returns the count associated with a specific character's ASCII value
      *
      * @return count of specified chunk
      * @param ch
-     *            is the chunk/character's ascii value for which count is
+     *            is the chunk/character's ASCII value for which count is
      *            requested
      */
     public int getCount(int ch)
     {
-        return table.get(ch);
+        return table[ch];
     }
 
 
@@ -56,14 +58,16 @@ public class CharCounter
      * @return count of all chucks/read
      * @throws IOException
      */
-    public int countAll(InputStream stream)
+    public int countAll(BitInputStream stream)
         throws IOException
     {
         int bits;
         int count = 0;
-        while ((bits = stream.read()) != -1)
+        while ((bits = stream.read(BITS_PER_WORD)) != -1)
         {
-            table.set(bits, table.get(bits) + 1);
+            table[bits] = table[bits] + 1;
+            System.out.println((char)bits + "\t" + table[bits]);
+            count++;
         }
         return count;
     }
@@ -78,35 +82,35 @@ public class CharCounter
      */
     public void add(int i)
     {
-        table.set(i, table.get(i) + 1);
+        table[i] = table[i] + 1;
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Sets the count of a spefic ascii value to a specific count
+     * Sets the count of a specific ASCII value to a specific count
      *
      * @param i
-     *            the ascii value of the character's whose count is being
+     *            the ASCII value of the character's whose count is being
      *            changed
      * @param value
      *            the count that the ascii's value count will be updated to
      */
     public void set(int i, int value)
     {
-        table.set(i, value);
+        table[i] = value;
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Sets all counts for all ascii values to 0
+     * Sets all counts for all ASCII values to 0
      */
     public void clear()
     {
-        for (int i = 0; i <= 256; i++)
+        for (int i = 0; i <= 255; i++)
         {
-            table.set(i, 0);
+            table[i] = 0;
         }
     }
 }
