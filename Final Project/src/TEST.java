@@ -17,8 +17,8 @@ public class TEST
         }
         HuffModel model = new HuffModel();
         model.initialize(stream);
-        model.showCounts();
-
+        model.showCodings();
     }
-
 }
+
+

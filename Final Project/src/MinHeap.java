@@ -2,7 +2,7 @@
 public class MinHeap
 {
 
-    private Comparable[] Heap; // Pointer to the heap array
+    public Comparable[] Heap; // Pointer to the heap array
     private int          size; // Maximum size of the heap
     private int          n;    // Number of things now in heap
 

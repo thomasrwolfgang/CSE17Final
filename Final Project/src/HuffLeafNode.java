@@ -1,6 +1,6 @@
 /** Huffman tree node: Leaf class */
 public class HuffLeafNode
-    implements HuffBaseNode
+    implements Comparable, HuffBaseNode
 {
     private char element; // Element for this node
     private int  weight;  // Weight for this node
@@ -32,5 +32,13 @@ public class HuffLeafNode
     public boolean isLeaf()
     {
         return true;
+    }
+
+
+    public int compareTo(Object that)
+    {
+        if(!(that instanceof HuffLeafNode))
+            return -1;
+        return this.weight - ((HuffLeafNode)that).weight();
     }
 }

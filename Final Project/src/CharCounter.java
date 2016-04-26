@@ -14,7 +14,7 @@ public class CharCounter
     /**
      * Table to hold the counts for each value read by a stream
      */
-    int[] table = new int[256];
+    int[] table = new int[128];
     /**
      * Number of bits per word
      */
@@ -27,7 +27,7 @@ public class CharCounter
      */
     public CharCounter()
     {
-        for (int i = 0; i <= 255; i++)
+        for (int i = 0; i <= 127; i++)
         {
             table[i] = 0;
         }
@@ -108,7 +108,7 @@ public class CharCounter
      */
     public void clear()
     {
-        for (int i = 0; i <= 255; i++)
+        for (int i = 0; i <= 127; i++)
         {
             table[i] = 0;
         }
