@@ -17,6 +17,11 @@ public class HuffTree
         root = new HuffInternalNode(l, r, wt);
     }
 
+    public HuffTree(HuffBaseNode node)
+    {
+        root = node;
+    }
+
 
     public HuffBaseNode root()
     {

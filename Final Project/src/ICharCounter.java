@@ -13,7 +13,7 @@ public interface ICharCounter {
 
     /**
      * Returns the count associated with specified character.
-     * @param ch is the chunk/character for  which count is requested
+     * @param ch is the chunk/character for which count is requested
      * @return count of specified chunk
      * @throws some kind of exception if ch isn't a valid chunk/character
      */
@@ -25,7 +25,7 @@ public interface ICharCounter {
      * @return count of all chunks/read
      * @throws IOException if reading fails
      */
-    public int countAll(BitInputStream stream) throws IOException;
+    public int countAll(InputStream stream) throws IOException;
 
     /**
      * Update state to record one occurrence of specified chunk/character.

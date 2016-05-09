@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.io.InputStream;
 
 // -------------------------------------------------------------------------
 /**
@@ -14,7 +15,7 @@ public class CharCounter
     /**
      * Table to hold the counts for each value read by a stream
      */
-    int[] table = new int[128];
+    int[] table = new int[IHuffConstants.ALPH_SIZE];
     /**
      * Number of bits per word
      */
@@ -58,15 +59,14 @@ public class CharCounter
      * @return count of all chucks/read
      * @throws IOException
      */
-    public int countAll(BitInputStream stream)
+    public int countAll(InputStream stream)
         throws IOException
     {
         int bits;
         int count = 0;
-        while ((bits = stream.read(BITS_PER_WORD)) != -1)
+        while ((bits = ((BitInputStream)stream).read(BITS_PER_WORD)) != -1)
         {
             table[bits] = table[bits] + 1;
-            System.out.println((char)bits + "\t" + table[bits]);
             count++;
         }
         return count;

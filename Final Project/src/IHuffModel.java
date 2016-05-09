@@ -13,6 +13,7 @@
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.File;
+import java.io.IOException;
 
 public interface IHuffModel extends IHuffConstants {
     /**
@@ -29,8 +30,9 @@ public interface IHuffModel extends IHuffConstants {
      * Initialize state via an input stream. The stream most
      * likely comes from a view, it's NOT a BitInputStream
      * @param stream is an input stream for initializing state of this model
+     * @throws IOException
      */
-    public void initialize(InputStream stream);
+    public void initialize(InputStream stream) throws IOException;
 
     /**
      * Write a compressed version of the data read
@@ -42,8 +44,9 @@ public interface IHuffModel extends IHuffConstants {
      * @param stream is the input stream to be compressed
      * @param file specifes the file to be written with compressed data
      * @param force indicates if compression forced
+     * @throws IOException
      */
-    public void write(InputStream stream, File file, boolean force);
+    public void write(InputStream stream, String file, boolean force) throws IOException;
 
     /**
      * Make sure this model communicates with some view.
