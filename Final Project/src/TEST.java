@@ -1,9 +1,9 @@
-import java.io.File;
 import java.io.IOException;
 
 public class TEST
 {
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args)
+        throws IOException
     {
         BitInputStream stream =
             new BitInputStream("C:/Users/trwol/Desktop/CSE17TEST.txt");
@@ -11,12 +11,26 @@ public class TEST
         model.initialize(stream);
         model.showCounts();
         model.showCodings();
-        File file = new File("C:/Users/trwol/Desktop/OUTPUTHUFF.huff");
-        model.write(stream, "C:/Users/trwol/Desktop/OUTPUTHUFF.huff", true);
-        BitInputStream huff = new BitInputStream("C:/Users/trwol/Desktop/OUTPUTHUFF.huff");
-        BitOutputStream unhuff = new BitOutputStream("C:/Users/trwol/Desktop/OUTPUT.txt");
+        stream.close();
+        BitInputStream stream2 =
+            new BitInputStream("C:/Users/trwol/Desktop/CSE17TEST.txt");
+        //model.write(stream2, "C:/Users/trwol/Desktop/OUTPUTHUFF.huff", true);
+        stream.close();
+        stream2.close();
+        // System.out.println(IHuffModel.PSEUDO_EOF);
+        // System.out.println(IHuffModel.MAGIC_NUMBER);
+        BitInputStream huff =
+            new BitInputStream("C:/Users/trwol/Desktop/OUTPUTHUFF.huff");
+        BitOutputStream unhuff =
+            new BitOutputStream("C:/Users/trwol/Desktop/OUTPUTUNHUFF.txt");
+
+        // System.out.println(huff.read((24*4)));
         model.uncompress(huff, unhuff);
+         huff.close();
+         unhuff.close();
     }
+
+
 
 
     public static String encodeThisBitch(HuffBaseNode root)

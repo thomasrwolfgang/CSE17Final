@@ -35,7 +35,7 @@ public class HuffModel
         for (int i = 0; i <= 127; i++)
         {
             if (counter.getCount(i) > 0)
-                System.out.println((char)i + " count:  " + counter.getCount(i));
+                System.out.println((char)i + " count: " + counter.getCount(i));
         }
     }
 
@@ -49,7 +49,8 @@ public class HuffModel
         {
             if (counter.getCount(i) > 0)
             {
-                System.out.println((char)i + " " + encodings[i]);
+                System.out
+                    .println("Encoding for " + (char)i + ": " + encodings[i]);
             }
         }
     }
@@ -66,15 +67,14 @@ public class HuffModel
      */
     public void findEncodings(HuffBaseNode node, String path)
     {
-        if (!(node.isLeaf()))
+        if (node.isLeaf())
         {
-            findEncodings(((HuffInternalNode)node).left(), path + '0');
-            findEncodings(((HuffInternalNode)node).right(), path + '1');
+            encodings[((HuffLeafNode)node).element()] = path;
         }
         else
         {
-            HuffLeafNode leaf = (HuffLeafNode)node;
-            encodings[leaf.element()] = path;
+            findEncodings(((HuffInternalNode)node).left(), path + '0');
+            findEncodings(((HuffInternalNode)node).right(), path + '1');
         }
     }
 
@@ -125,6 +125,10 @@ public class HuffModel
 
     public void write(InputStream stream, String file, boolean force)
     {
+        // BitInputStream stream2 = new BitInputStream(stream);
+        // initialize(stream2);
+        // tree = buildTree(counter);
+        // findEncodings(tree.root(), "");
         BitOutputStream output = new BitOutputStream(file);
         output.write(IHuffModel.BITS_PER_INT, IHuffModel.MAGIC_NUMBER);
         writeTree(tree.root(), output);
@@ -133,24 +137,19 @@ public class HuffModel
         int inbits;
         try
         {
-            while ((inbits = ((BitInputStream)stream).read(BITS_PER_INT)) != -1)
+            while ((inbits =
+                ((BitInputStream)stream).read(IHuffModel.BITS_PER_WORD)) != -1)
             {
-                for (int i = 0; i < encodings.length; i++)
+                char[] encodes = encodings[inbits].toCharArray();
+                for (int i = 0; i < encodes.length; i++)
                 {
-                    for (int k = 0; k < encodings[i].length(); k++)
-                    {
-                        if (encodings[i].charAt(k) == '0')
-                        {
-                            output.write(1, 0);
-                        }
-                        if (encodings[i].charAt(k) == '1')
-                        {
-                            output.write(1, 1);
-                        }
-                    }
+                    if (encodes[i] == '0')
+                        output.write(1, 0);
+                    else
+                        output.write(1, 1);
                 }
             }
-            output.write(IHuffModel.PSEUDO_EOF);
+            output.write(9, IHuffModel.PSEUDO_EOF);
             output.close();
         }
         catch (IOException e)
@@ -167,19 +166,14 @@ public class HuffModel
         if (!node.isLeaf())
         {
             output.write(1, 0);
+            writeTree(((HuffInternalNode)node).left(), output);
+            writeTree(((HuffInternalNode)node).right(), output);
         }
         else
         {
-            if (node.isLeaf())
-            {
-                output.write(1, 1);
-                output.write(9, ((HuffLeafNode)node).element());
-            }
-            else
-            {
-                writeTree(((HuffInternalNode)node).left(), output);
-                writeTree(((HuffInternalNode)node).right(), output);
-            }
+            output.write(1, 1);
+            output.write(9, ((HuffLeafNode)node).element());
+
         }
 
     }
@@ -192,74 +186,75 @@ public class HuffModel
     }
 
 
-    public void uncompress(InputStream input, OutputStream output)
+    public void uncompress(InputStream input1, OutputStream output1)
     {
-        int magic = 0;
+        BitInputStream input = (BitInputStream)input1;
+        BitOutputStream output = (BitOutputStream)output1;
         try
         {
-            magic = ((BitInputStream)input).read(BITS_PER_INT);
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        if (magic != MAGIC_NUMBER)
-        {
-            try
+            int magic = input.read(BITS_PER_INT);
+
+            if (magic != MAGIC_NUMBER)
             {
                 throw new IOException("magic number not right");
             }
-            catch (IOException e)
+            HuffTree cTree = new HuffTree(rebuild(input));
+            int bits;
+            while (true)
             {
-                e.printStackTrace();
-            }
-        }
-        HuffTree cTree = new HuffTree(rebuild((BitInputStream)input));
-        int bits;
-        while (true)
-        {
-            HuffBaseNode pointer = cTree.root();
-            try
-            {
-                if ((bits = ((BitInputStream)input).read(1)) == -1)
+                HuffBaseNode pointer = cTree.root();
+                bits = input.read(1);
+                if (bits == -1)
                 {
-                    System.err.println("should not happen! trouble reading bits1");
+                    System.err
+                        .println("should not happen! trouble reading bits1");
+                    break;
                 }
                 else
                 {
                     // use the zero/one value of the bit read
                     // to traverse Huffman coding tree
-                    // if a leaf is reached, decode the character and print UNLESS
+                    // if a leaf is reached, decode the character and print
+                    // UNLESS
                     // the character is pseudo-EOF, then decompression done
-                    if (bits == 0)
+
+                    if ((bits & 1) == 0)
                     {
                         pointer = ((HuffInternalNode)pointer).left();
                     }
-                    else
+                    if ((bits & 1) == 1)
+                    {
                         pointer = ((HuffInternalNode)pointer).right();
+                    }
                     if (pointer.isLeaf())
                     {
                         if (((HuffLeafNode)pointer)
                             .element() == (char)IHuffModel.PSEUDO_EOF)
                             break; // out of loop
                         else
-                            ((BitOutputStream)output).write(
+                            output.write(
                                 BITS_PER_WORD,
                                 ((HuffLeafNode)pointer).element());
+                        pointer = cTree.root();
                     }
+
                 }
-            }
-            catch (IOException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+
             }
         }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        input.close();
+        output.close();
+
     }
 
 
-    HuffBaseNode rebuild(BitInputStream input)
+    HuffBaseNode rebuild(InputStream input1)
     {
+        BitInputStream input = (BitInputStream)input1;
         HuffBaseNode temp = null;
         int bits;
         while (true)
@@ -270,6 +265,7 @@ public class HuffModel
                 {
                     System.err
                         .println("should not happen! trouble reading bits2");
+                    break;
                 }
                 else
                 {
@@ -282,26 +278,11 @@ public class HuffModel
                     }
                     else
                     {
-                        try
-                        {
-                            if (input.read(9) == IHuffModel.PSEUDO_EOF)
-                                break; // out of loop
-                            else
-                                try
-                                {
-                                    return new HuffLeafNode(
-                                        (char)input.read(9),
-                                        0);
-                                }
-                                catch (IOException e)
-                                {
-                                    e.printStackTrace();
-                                }
-                        }
-                        catch (IOException e)
-                        {
-                            e.printStackTrace();
-                        }
+                        int charV = input.read(9);
+                        if (charV == IHuffModel.PSEUDO_EOF)
+                            break; // out of loop
+                        else
+                            return new HuffLeafNode((char)charV, 0);
                     }
                 }
             }
